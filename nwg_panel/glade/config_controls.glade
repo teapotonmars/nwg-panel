@@ -632,6 +632,17 @@ values in the panel widget</property>
         <child>
           <placeholder/>
         </child>
+        <child>
+          <object class="GtkCheckButton" id="ctrl-power-profiles">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Power Mode</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">17</property>
+            <property name="width">3</property>
+          </packing>
+        </child>
       </object>
     </child>
     <child type="label">

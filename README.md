@@ -21,6 +21,12 @@ per-output mode shows only existing workspaces assigned to that output.
 Scrolling follows the displayed workspace list and can stop at either end. Turn off content and
 autotiling markers if you want only the workspace name on each button.
 
+Enable **Power Mode** in the controls settings to add a power profile selector to the
+controls popup. It offers the profiles supported by `power-profiles-daemon` (Performance,
+Balanced and Power Saver), shows the active mode and follows changes made by other apps.
+The selector is hidden when the daemon is unavailable. This component can also be enabled
+by adding `"power-profiles"` to `"controls-settings"` → `"components"`.
+
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/09866188-6819-4dfb-99df-40af53be859b" width=640><br>
 
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/1aeb8990-f355-4ba9-80e3-9aa2a46730ca" width=640><br>
