@@ -4548,6 +4548,13 @@ class EditorWrapper(object):
         self.ctrl_power_profiles.set_label(voc.get("power-mode", "Power Mode"))
         self.ctrl_power_profiles.set_active("power-profiles" in settings["components"])
 
+        self.ctrl_network = builder.get_object("ctrl-network")
+        self.ctrl_network.set_label(voc.get("network", "Network / Wi-Fi"))
+        self.ctrl_network.set_active("network" in settings["components"])
+        self.ctrl_bluetooth = builder.get_object("ctrl-bluetooth")
+        self.ctrl_bluetooth.set_label(voc.get("bluetooth", "Bluetooth"))
+        self.ctrl_bluetooth.set_active("bluetooth" in settings["components"])
+
         self.ctrl_backlight_controller = builder.get_object("backlight-controller")
         self.ctrl_backlight_controller.set_tooltip_text(voc["backlight-controller-tooltip"])
         self.ctrl_backlight_controller.set_active_id(settings["backlight-controller"])
@@ -4753,6 +4760,13 @@ class EditorWrapper(object):
                 settings["components"].append("power-profiles")
         elif "power-profiles" in settings["components"]:
             settings["components"].remove("power-profiles")
+
+        for component, button in (("network", self.ctrl_network), ("bluetooth", self.ctrl_bluetooth)):
+            if button.get_active():
+                if component not in settings["components"]:
+                    settings["components"].append(component)
+            elif component in settings["components"]:
+                settings["components"].remove(component)
 
         if self.ctrl_comp_processes.get_active():
             if "processes" not in settings["components"]:

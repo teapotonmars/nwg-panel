@@ -27,6 +27,30 @@ Balanced and Power Saver), shows the active mode and follows changes made by oth
 The selector is hidden when the daemon is unavailable. This component can also be enabled
 by adding `"power-profiles"` to `"controls-settings"` → `"components"`.
 
+**Network / Wi-Fi** and **Bluetooth** are optional controls components (`"network"`
+and `"bluetooth"`). Enable them in the controls editor to manage connections inside
+the popup without NetworkManager or Bluetooth tray applets.
+
+Network controls require NetworkManager and its `NM-1.0` GObject introspection
+bindings (provided by `libnm` on Arch Linux). They offer a Wi-Fi switch, adapter
+selection, scanning, signal strength, saved connections, open/WPA/WPA2/WPA3-Personal
+connections, encrypted password entry and disconnect controls. Ethernet connection
+status and disconnect are also available. Passwords are stored by NetworkManager,
+not in the panel configuration. Existing enterprise/WEP profiles can be activated;
+creating those profiles requires a NetworkManager settings editor. Enterprise
+profiles that need interactive credentials still require a NetworkManager secret
+agent. Hidden networks must likewise be configured beforehand.
+
+Bluetooth controls require BlueZ. They offer adapter selection, power, scanning,
+pairing with PIN/passkey/confirmation prompts, and device connect/disconnect.
+Successful pairing trusts the device for future connections. Discovery stops after
+30 seconds or when the popup closes. The panel registers its own pairing agent
+without replacing another application's default agent. Closing a pairing prompt
+cancels the request; unsolicited pairing requests are rejected.
+
+Both components update through asynchronous D-Bus notifications, hide when their
+service or hardware is unavailable, and display failed operations in the popup.
+
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/09866188-6819-4dfb-99df-40af53be859b" width=640><br>
 
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/1aeb8990-f355-4ba9-80e3-9aa2a46730ca" width=640><br>

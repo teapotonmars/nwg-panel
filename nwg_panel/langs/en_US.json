@@ -339,6 +339,8 @@
   "workspaces-to-show-tooltip": "Space-separated numbers of workspaces to show.",
   "workspaces-tooltip": "Space-separated numbers of workspaces \nyou defined in sway config. We'll build the \ncontext menu out of them.",
   "power-mode": "Power Mode",
+  "network": "Network / Wi-Fi",
+  "bluetooth": "Bluetooth",
   "dynamic-workspaces": "Show all existing workspaces",
   "workspace-numbers-help": "Leave empty to show all existing workspaces. On a single output, only workspaces assigned to that output are shown.",
   "workspace-label-format": "Workspace labels",

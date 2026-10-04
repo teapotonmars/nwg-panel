@@ -643,6 +643,28 @@ values in the panel widget</property>
             <property name="width">3</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkCheckButton" id="ctrl-network">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Network / Wi-Fi</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">18</property>
+            <property name="width">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="ctrl-bluetooth">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Bluetooth</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">19</property>
+            <property name="width">3</property>
+          </packing>
+        </child>
       </object>
     </child>
     <child type="label">
