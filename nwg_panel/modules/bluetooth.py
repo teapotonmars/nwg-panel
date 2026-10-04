@@ -131,7 +131,7 @@ class Bluetooth(ConnectivitySection):
                                       not item[1].get("Paired", False), item[1].get("Alias", "").casefold()))
         connected = [properties.get("Alias", "Device") for path, properties in devices
                      if properties.get("Connected")]
-        self.label.set_text("Bluetooth: " + (", ".join(connected) if connected else "On" if powered else "Off"))
+        self.label.set_text((", ".join(connected) if connected else "On" if powered else "Off"))
         self.clear_rows()
         if powered:
             for path, properties in devices:

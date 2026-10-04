@@ -29,7 +29,10 @@ by adding `"power-profiles"` to `"controls-settings"` → `"components"`.
 
 **Network / Wi-Fi** and **Bluetooth** are optional controls components (`"network"`
 and `"bluetooth"`). Enable them in the controls editor to manage connections inside
-the popup without NetworkManager or Bluetooth tray applets.
+the popup without NetworkManager or Bluetooth tray applets. They use GNOME-style
+quick settings: click a tile to toggle its radio, or its arrow to choose a network
+or device. The two tiles share a full-width details area; only one menu opens at
+a time. Colours follow the GTK theme.
 
 Network controls require NetworkManager and its `NM-1.0` GObject introspection
 bindings (provided by `libnm` on Arch Linux). They offer a Wi-Fi switch, adapter

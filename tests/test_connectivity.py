@@ -70,7 +70,9 @@ class ConnectivityFixture:
         def widget_factory(*args, **kwargs):
             return Mock()
         self.gtk = SimpleNamespace(
-            Box=MockBox, Image=Mock(), Label=Mock(side_effect=widget_factory),
+            Box=MockBox, Container=MockBox, CssProvider=Mock(), STYLE_PROVIDER_PRIORITY_APPLICATION=600,
+            ToggleButton=Mock(side_effect=widget_factory), Revealer=Mock(side_effect=widget_factory),
+            RevealerTransitionType=SimpleNamespace(NONE=0), Image=Mock(), Label=Mock(side_effect=widget_factory),
             Expander=Mock(side_effect=widget_factory), Switch=Mock(side_effect=widget_factory),
             ComboBoxText=Mock(side_effect=widget_factory), Button=Mock(side_effect=widget_factory),
             Entry=Mock(side_effect=widget_factory), ScrolledWindow=Mock(side_effect=widget_factory),
@@ -88,7 +90,7 @@ class ConnectivityFixture:
         self.nm.DeviceStateReason = SimpleNamespace(NO_SECRETS=7, SUPPLICANT_DISCONNECT=8,
                                                    SUPPLICANT_CONFIG_FAILED=9, SUPPLICANT_FAILED=10,
                                                    SUPPLICANT_TIMEOUT=11)
-        self.repo = SimpleNamespace(Gio=self.gio, GLib=self.glib, Gtk=self.gtk, GObject=self.gobject, NM=self.nm)
+        self.repo = SimpleNamespace(Gio=self.gio, GLib=self.glib, Gtk=self.gtk, Pango=SimpleNamespace(EllipsizeMode=SimpleNamespace(END=3)), GObject=self.gobject, NM=self.nm)
         self.base = load("connectivity", self.repo)
         self.dependencies = {"nwg_panel.modules.connectivity": self.base}
 
@@ -109,6 +111,24 @@ class ConnectivityFixture:
         return widget
 
 class ConnectivityTests(ConnectivityFixture, unittest.TestCase):
+    def test_tile_toggle_uses_backend_state_and_respects_busy(self):
+        widget = self.base.ConnectivitySection("Wi-Fi", "network-wireless-symbolic")
+        widget.set_power = Mock()
+        widget.power.get_active.return_value = True
+        widget.toggle_power()
+        widget.set_power.assert_called_once_with(False)
+        widget.set_power.reset_mock()
+        widget.busy = True
+        widget.toggle_power()
+        widget.set_power.assert_not_called()
+
+    def test_opening_one_connection_menu_closes_the_other(self):
+        sections = [Mock(), Mock()]
+        sections[0].expander.get_expanded.return_value = True
+        self.base.ConnectivityGroup.on_expanded(None, sections[0].expander, None, sections)
+        sections[1].expander.set_expanded.assert_called_once_with(False)
+        sections[0].expander.set_expanded.assert_not_called()
+
     def test_password_prompt_clears_secret_on_submit_and_cancel(self):
         widget = self.base.ConnectivitySection("Wi-Fi", "network-wireless-symbolic")
         answered = Mock()

@@ -1,6 +1,6 @@
 """Shared GTK presentation for asynchronous connectivity controls."""
 
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import Gio, GLib, GObject, Gtk, Pango
 
 
 class ConnectivitySection(Gtk.Box):
@@ -17,23 +17,50 @@ class ConnectivitySection(Gtk.Box):
         self.interaction_generation = 0
         self.title = title
 
-        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.header.get_style_context().add_class("connectivity-tile")
+        self.toggle = Gtk.Button()
+        self.toggle.get_style_context().add_class("connectivity-toggle")
+        self.toggle.set_tooltip_text("Enable or disable " + title)
+        self.toggle.connect("clicked", self.toggle_power)
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         header.pack_start(Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU), False, False, 0)
         self.label = Gtk.Label(label=title)
-        self.label.set_max_width_chars(32)
-        self.label.set_ellipsize(3)
-        header.pack_start(self.label, False, False, 0)
+        self.label.set_max_width_chars(16)
+        self.label.set_ellipsize(Pango.EllipsizeMode.END)
+        self.label.set_xalign(0)
+        labels = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        heading = Gtk.Label(label=title, xalign=0)
+        heading.get_style_context().add_class("connectivity-heading")
+        self.label.get_style_context().add_class("connectivity-subtitle")
+        labels.pack_start(heading, False, False, 0)
+        labels.pack_start(self.label, False, False, 0)
+        header.pack_start(labels, True, True, 0)
+        self.toggle.add(header)
+        self.header.pack_start(self.toggle, True, True, 0)
+        self.menu_button = Gtk.ToggleButton()
+        self.menu_button.set_image(Gtk.Image.new_from_icon_name("pan-down-symbolic", Gtk.IconSize.MENU))
+        self.menu_button.set_tooltip_text("Choose " + title + " connections")
+        self.menu_button.get_style_context().add_class("connectivity-menu-button")
+        self.header.pack_end(self.menu_button, False, False, 0)
+        self.pack_start(self.header, False, False, 0)
         self.expander = Gtk.Expander()
-        self.expander.set_label_widget(header)
+        # Keep expansion state independent of the tile's power button.
+        self.menu_button.connect("toggled", lambda button: self.expander.set_expanded(button.get_active()))
+        self.revealer = Gtk.Revealer()
+        self.revealer.set_transition_type(Gtk.RevealerTransitionType.NONE)
+        self.expander.connect("notify::expanded", self.reveal_details)
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.expander.add(content)
-        self.pack_start(self.expander, False, False, 6)
+        content.get_style_context().add_class("connectivity-details")
+        self.revealer.add(content)
+        self.pack_start(self.revealer, False, False, 0)
 
         self.toolbar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.power = Gtk.Switch()
         self.power.set_tooltip_text("Enable " + title)
         self.power.connect("state-set", self.on_power)
-        self.toolbar.pack_start(self.power, False, False, 0)
+        self.power.connect("notify::active", self.update_tile)
+        self.power.connect("notify::sensitive", self.update_tile)
         self.adapter = Gtk.ComboBoxText()
         self.adapter.set_no_show_all(True)
         self.toolbar.pack_start(self.adapter, True, True, 0)
@@ -57,10 +84,31 @@ class ConnectivitySection(Gtk.Box):
         scroll.set_propagate_natural_height(True)
         scroll.add(self.rows)
         content.pack_start(scroll, False, False, 0)
-        self.expander.show_all()
+        self.header.show_all()
+        self.revealer.show_all()
+        provider = Gtk.CssProvider()
+        provider.load_from_data(TILE_CSS.encode())
+        apply_style(self, provider)
         self.expander.connect("notify::expanded", self.on_collapse)
         self.connect("destroy", self.on_destroy)
         self.connect("unmap", self.on_unmap)
+
+    def toggle_power(self, *args):
+        self.on_power(self.power, not self.power.get_active())
+
+    def update_tile(self, *args):
+        context = self.header.get_style_context()
+        if self.power.get_active():
+            context.add_class("enabled")
+        else:
+            context.remove_class("enabled")
+        self.toggle.set_sensitive(self.power.get_sensitive() and not self.busy and self.prompt_callback is None)
+
+    def reveal_details(self, *args):
+        expanded = self.expander.get_expanded()
+        self.revealer.set_reveal_child(expanded)
+        if self.menu_button.get_active() != expanded:
+            self.menu_button.set_active(expanded)
 
     def watch(self, obj, signal, callback=None):
         handler = obj.connect(signal, callback or self.schedule_refresh)
@@ -103,6 +151,7 @@ class ConnectivitySection(Gtk.Box):
         enabled = not busy and self.prompt_callback is None
         self.toolbar.set_sensitive(enabled)
         self.rows.set_sensitive(enabled)
+        self.update_tile()
 
     def ask(self, text, callback, entry=False, secret=False):
         self.cancel_prompt()
@@ -113,6 +162,7 @@ class ConnectivitySection(Gtk.Box):
         label.set_max_width_chars(40)
         self.prompt.pack_start(label, False, False, 0)
         self.prompt_callback = callback
+        self.update_tile()
         self.toolbar.set_sensitive(False)
         self.rows.set_sensitive(False)
         self.prompt_entry = None
@@ -141,6 +191,7 @@ class ConnectivitySection(Gtk.Box):
             self.prompt_entry.set_text("")
         self.prompt_entry = None
         self.prompt.hide()
+        self.update_tile()
         self.toolbar.set_sensitive(not self.busy)
         self.rows.set_sensitive(not self.busy)
         if callback:
@@ -174,3 +225,49 @@ class ConnectivitySection(Gtk.Box):
         for obj, handler in self.handlers:
             GObject.Object.disconnect(obj, handler)
         self.handlers = []
+
+
+TILE_CSS = """
+.connectivity-tile { border-radius: 24px; background-color: alpha(@theme_fg_color, 0.10); }
+.connectivity-tile button { background-image: none; background-color: transparent;
+    border: none; box-shadow: none; padding: 12px; }
+.connectivity-tile .connectivity-toggle { border-radius: 24px 0 0 24px; }
+.connectivity-tile .connectivity-menu-button { border-radius: 0 24px 24px 0;
+    border-left: 1px solid alpha(@theme_fg_color, 0.12); padding: 10px; }
+.connectivity-tile.enabled { background-color: @theme_selected_bg_color; color: @theme_selected_fg_color; }
+.connectivity-tile.enabled label, .connectivity-tile.enabled image { color: @theme_selected_fg_color; }
+.connectivity-tile button:hover { background-color: alpha(@theme_fg_color, 0.10); }
+.connectivity-heading { font-weight: bold; }
+.connectivity-subtitle { font-size: 0.85em; }
+.connectivity-details { border-radius: 16px; padding: 12px;
+    background-color: alpha(@theme_fg_color, 0.06); }
+"""
+
+
+def apply_style(widget, provider):
+    widget.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+    if isinstance(widget, Gtk.Container):
+        for child in widget.get_children():
+            apply_style(child, provider)
+
+
+class ConnectivityGroup(Gtk.Box):
+    """Two quick toggles with mutually exclusive full-width connection menus."""
+    def __init__(self, sections):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        tiles = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8, homogeneous=True)
+        self.pack_start(tiles, False, False, 0)
+        for section in sections:
+            section.header.set_no_show_all(True)
+            section.remove(section.header)
+            tiles.pack_start(section.header, True, True, 0)
+            self.pack_start(section, False, False, 0)
+            section.connect("notify::visible", lambda widget, prop: widget.header.set_visible(widget.get_visible()))
+            section.header.set_visible(section.get_visible())
+            section.expander.connect("notify::expanded", self.on_expanded, sections)
+
+    def on_expanded(self, selected, property, sections):
+        if selected.get_expanded():
+            for section in sections:
+                if section.expander is not selected:
+                    section.expander.set_expanded(False)

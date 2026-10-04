@@ -95,7 +95,7 @@ class Network(ConnectivitySection):
         device = self.selected_device()
         active = device.get_active_access_point()
         activated = device.get_state() == self.NM.DeviceState.ACTIVATED
-        self.label.set_text("Wi-Fi: " + (self.ssid(active).decode("utf-8", "replace") if active else
+        self.label.set_text((self.ssid(active).decode("utf-8", "replace") if active else
                                         "Not connected" if self.client.wireless_get_enabled() else "Off"))
         if not hardware:
             self.add_row("Wi-Fi is blocked by a hardware switch")

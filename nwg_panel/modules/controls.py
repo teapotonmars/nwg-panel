@@ -18,6 +18,7 @@ from nwg_panel.tools import (check_key, get_brightness, set_brightness, get_volu
 
 from nwg_panel.common import commands
 from nwg_panel.modules.power_profiles import PowerProfiles
+from nwg_panel.modules.connectivity import ConnectivityGroup
 from nwg_panel.modules.network import Network
 from nwg_panel.modules.bluetooth import Bluetooth
 
@@ -475,11 +476,13 @@ class PopupWindow(Gtk.Window):
         if "power-profiles" in settings["components"]:
             v_box.pack_start(PowerProfiles(), False, False, 6)
 
+        connectivity = []
         if "network" in settings["components"]:
-            v_box.pack_start(Network(), False, False, 6)
-
+            connectivity.append(Network())
         if "bluetooth" in settings["components"]:
-            v_box.pack_start(Bluetooth(), False, False, 6)
+            connectivity.append(Bluetooth())
+        if connectivity:
+            v_box.pack_start(ConnectivityGroup(connectivity), False, False, 6)
 
         if "readme" in settings["components"] and is_command("nwg-readme-browser"):
             event_box = Gtk.EventBox()
