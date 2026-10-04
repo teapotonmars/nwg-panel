@@ -337,5 +337,12 @@
   "workspaces-clickable": "Workspaces clickable",
   "workspaces-to-show": "Workspaces to show",
   "workspaces-to-show-tooltip": "Space-separated numbers of workspaces to show.",
-  "workspaces-tooltip": "Space-separated numbers of workspaces \nyou defined in sway config. We'll build the \ncontext menu out of them."
+  "workspaces-tooltip": "Space-separated numbers of workspaces \nyou defined in sway config. We'll build the \ncontext menu out of them.",
+  "dynamic-workspaces": "Show all existing workspaces",
+  "workspace-numbers-help": "Leave empty to show all existing workspaces. On a single output, only workspaces assigned to that output are shown.",
+  "workspace-label-format": "Workspace labels",
+  "workspace-label-number": "Workspace number",
+  "workspace-label-full-name": "Full workspace name",
+  "workspace-label-name": "Name without number (98:AI → AI)",
+  "disable-scroll-wraparound": "Stop scrolling at the first and last workspace"
 }

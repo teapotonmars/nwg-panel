@@ -144,7 +144,10 @@ SKELETON_PANEL: dict = {
         "angle": 0.0
     },
     "sway-workspaces": {
-        "numbers": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "numbers": [],
+        "all-outputs": False,
+        "label-format": "name",
+        "disable-scroll-wraparound": True,
         "show-icon": True,
         "image-size": 16,
         "show-name": True,
@@ -2614,7 +2617,10 @@ class EditorWrapper(object):
         check_key(self.panel, "sway-workspaces", {})
         settings = self.panel["sway-workspaces"]
         defaults = {
-            "numbers": [1, 2, 3, 4, 5, 6, 7, 8],
+            "numbers": [],
+            "all-outputs": True,
+            "label-format": "number",
+            "disable-scroll-wraparound": False,
             "custom-labels": [],
             "focused-labels": [],
             "show-icon": True,
@@ -2642,13 +2648,34 @@ class EditorWrapper(object):
         builder.get_object("lbl-angle").set_text("{}:".format(voc["angle"]))
 
         self.eb_workspaces_menu = builder.get_object("numbers")
-        self.eb_workspaces_menu.set_tooltip_text(voc["workspaces-to-show-tooltip"])
         workspaces = settings["numbers"]
         text = ""
         for item in workspaces:
             text += str(item) + " "
         self.eb_workspaces_menu.set_text(text.strip())
         self.eb_workspaces_menu.connect("changed", validate_workspaces)
+        self.eb_workspaces_menu.set_tooltip_text(voc.get("workspace-numbers-help", "Leave empty to show all existing workspaces."))
+
+        self.ws_dynamic = builder.get_object("dynamic-workspaces")
+        self.ws_dynamic.set_label(voc.get("dynamic-workspaces", "Show all existing workspaces"))
+        self.ws_dynamic.set_active(not settings["numbers"])
+        self.eb_workspaces_menu.set_sensitive(not self.ws_dynamic.get_active())
+        self.ws_dynamic.connect("toggled", lambda button: self.eb_workspaces_menu.set_sensitive(not button.get_active()))
+
+        self.ws_all_outputs = builder.get_object("all-outputs")
+        self.ws_all_outputs.set_label(voc.get("all-outputs", "Show workspaces from all outputs"))
+        self.ws_all_outputs.set_active(settings["all-outputs"])
+
+        builder.get_object("lbl-label-format").set_text(voc.get("workspace-label-format", "Workspace labels"))
+        self.ws_label_format = builder.get_object("label-format")
+        for key, label in (("number", "Workspace number"), ("full-name", "Full workspace name"),
+                           ("name", "Name without number (98:AI → AI)")):
+            self.ws_label_format.append(key, voc.get("workspace-label-" + key, label))
+        self.ws_label_format.set_active_id(settings["label-format"])
+
+        self.ws_no_wrap = builder.get_object("disable-scroll-wraparound")
+        self.ws_no_wrap.set_label(voc.get("disable-scroll-wraparound", "Stop scrolling at the first and last workspace"))
+        self.ws_no_wrap.set_active(settings["disable-scroll-wraparound"])
 
         self.ws_custom_labels = builder.get_object("custom-labels")
         self.ws_custom_labels.set_tooltip_text(voc["custom-labels-tooltip"])
@@ -2708,8 +2735,10 @@ class EditorWrapper(object):
         settings = self.panel["sway-workspaces"]
 
         val = self.eb_workspaces_menu.get_text()
-        if val:
-            settings["numbers"] = val.split()
+        settings["numbers"] = [] if self.ws_dynamic.get_active() else val.split()
+        settings["all-outputs"] = self.ws_all_outputs.get_active()
+        settings["label-format"] = self.ws_label_format.get_active_id() or "name"
+        settings["disable-scroll-wraparound"] = self.ws_no_wrap.get_active()
 
         buffer = self.ws_custom_labels.get_buffer()
         val = buffer.get_text(*buffer.get_bounds(), False)

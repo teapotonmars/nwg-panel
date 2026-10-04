@@ -382,7 +382,8 @@ def instantiate_content(panel, container, content_list, icons_path=""):
         if item == "sway-workspaces":
             if sway:
                 if "sway-workspaces" in panel:
-                    workspaces = SwayWorkspaces(panel["sway-workspaces"], common.i3, icons_path=icons_path)
+                    workspaces = SwayWorkspaces(panel["sway-workspaces"], common.i3, icons_path=icons_path,
+                                                display_name=panel.get("output"))
                     container.pack_start(workspaces, False, False, panel["items-padding"])
                 else:
                     print("'sway-workspaces' not defined in this panel instance")

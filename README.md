@@ -7,6 +7,20 @@ This application is a part of the [nwg-shell](https://nwg-piotr.github.io/nwg-sh
 Wayland compositors. The panel is equipped with a graphical configuration program that frees the user from the need to 
 manually edit configuration files.
 
+Sway workspace lists can follow each panel's output and update automatically as workspaces are
+created, renamed, moved or removed. In the graphical configuration, open **Sway workspaces**,
+select **Show all existing workspaces**, and leave **All outputs** disabled. Choose **Name without
+number** to display `98:AI` as `AI`, **Full workspace name** to display `98:AI`, or **Workspace
+number** to display `98`. Buttons retain the full workspace identity and sort by workspace number;
+the tooltip shows the full name. Custom/focused labels still override labels for configured numbers.
+An empty workspace-number list enables automatic discovery. New configurations use automatic,
+per-output lists and name-only labels; existing number lists remain filters until automatic discovery
+is selected. Configurations without the new options retain all-output lists, numeric labels and
+scroll wraparound. Empty placeholders from a configured number list are available in all-output mode;
+per-output mode shows only existing workspaces assigned to that output.
+Scrolling follows the displayed workspace list and can stop at either end. Turn off content and
+autotiling markers if you want only the workspace name on each button.
+
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/09866188-6819-4dfb-99df-40af53be859b" width=640><br>
 
 <img src="https://github.com/nwg-piotr/nwg-panel/assets/20579136/1aeb8990-f355-4ba9-80e3-9aa2a46730ca" width=640><br>

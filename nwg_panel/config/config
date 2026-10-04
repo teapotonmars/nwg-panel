@@ -101,16 +101,10 @@
       "all-outputs": true
     },
     "sway-workspaces": {
-      "numbers": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8"
-      ]
+      "numbers": [],
+      "all-outputs": false,
+      "label-format": "name",
+      "disable-scroll-wraparound": true
     },
     "clock": {
       "format": "%a, %d. %b  %H:%M:%S",
@@ -229,16 +223,10 @@
       "all-outputs": false
     },
     "sway-workspaces": {
-      "numbers": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8"
-      ]
+      "numbers": [],
+      "all-outputs": false,
+      "label-format": "name",
+      "disable-scroll-wraparound": true
     },
     "clock": {
       "format": "%a, %d. %b  %H:%M:%S",
